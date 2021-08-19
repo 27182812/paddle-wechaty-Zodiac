@@ -19,33 +19,7 @@ from wechaty import (
 )
 
 os.environ['WECHATY_PUPPET'] = "wechaty-puppet-service"
-os.environ['WECHATY_PUPPET_SERVICE_TOKEN'] = "puppet_padlocal_d596375825e745cbb339fb1557780e92"
-#os.environ['WECHATY_PUPPET_SERVICE_ENDPOINT'] = "123.57.131.125:8080"
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
-# 定义model
-model = hub.Module(name='animegan_v2_shinkai_33', use_gpu=False)
-
-
-def img_transform(img_path, img_name):
-    """
-    将图片转换为新海诚《你的名字》、《天气之子》风格的图片
-    img_path: 图片的路径
-    img_name: 图片的文件名
-    """
-    # 图片转换后存放的路径
-    img_new_path = './image-new/' + img_name
-
-    # 模型预测
-    result = model.style_transfer(images=[cv2.imread(img_path)])
-
-    # 将图片保存到指定路径
-    cv2.imwrite(img_new_path, result[0])
-
-    # 返回新图片的路径
-    return img_new_path
-
-
+os.environ['WECHATY_PUPPET_SERVICE_TOKEN'] = "puppet_padlocal_XXX" ## 你自己的token
 
 def chinese_shuxiang(year):
     shuxiang_map = {
@@ -175,7 +149,6 @@ def img(xingzuo):
     return img_path
 
 
-
 def xzyunshi(xingzuo):
     xingzuoen_map = {
         u'白羊座': "aries",
@@ -208,7 +181,7 @@ def xzyunshi(xingzuo):
 
     # 定义请求数据，并且对数据进行赋值
     values = {}
-    values['key'] = '2256d894dbaa6283c8a4b496678e8976'
+    values['key'] = 'XXX' ## 你自己申请的APIKEY
     values['astro'] = xingzuoen_map[xingzuo]
 
     # 对请求数据进行编码
@@ -297,23 +270,10 @@ async def on_message(msg: Message):
                 await msg.say(
                     '这是自动回复: 现在很多年轻人都爱看科幻剧的，像是复仇者啊，里面有很多的英雄、超能力者，这些人都是我们的青春与情怀，那么12星座若穿越科幻剧了，会分别拥有什么超能力呢？\n机器人目前的功能是\n- 收到"属相", 根据提示回复你的属相\n- 收到"星座", 根据提示回复你的星座和今日运势还有在科幻世界你的超能力哦')
 
-            if msg.text() == '图片':
-                url = 'https://images.unsplash.com/photo-1470770903676-69b98201ea1c?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80'
-
-                # 构建一个FileBox
-                file_box_1 = FileBox.from_url(url=url, name='xx.jpg')
-
-                await msg.say(file_box_1)
-
             if msg.text() == '属相':
                 userstate = '2-1'
                 await msg.say('请输入你的出生年份，请保持纯数字，如1998')
-
-            # if msg.text() == '星座':
-            #     userstate = '1-1'
-            #     await msg.talker().say('请说出你的生日，格式如5.7、5月7日')
-            #     await msg.say('不需要加年份哦')
-
+                
             if userstate == '2-1':
                 year = msg.text()
                 print(year)
@@ -325,30 +285,6 @@ async def on_message(msg: Message):
             else:
                 rst = chat.chat(msg.text())
                 await msg.say(rst)
-
-
-
-            # 如果收到的message是一张图片
-            if msg.type() == Message.Type.MESSAGE_TYPE_IMAGE:
-                # 将Message转换为FileBox
-                file_box_2 = await msg.to_file_box()
-
-                # 获取图片名
-                img_name = file_box_2.name
-
-                # 图片保存的路径
-                img_path = './imgs/' + img_name
-
-                # 将图片保存为本地文件
-                await file_box_2.to_file(file_path=img_path)
-
-                # 调用图片风格转换的函数
-                img_new_path = img_transform(img_path, img_name)
-
-                # 从新的路径获取图片
-                file_box_3 = FileBox.from_file(img_new_path)
-
-                await msg.say(file_box_3)
 
 
 async def on_scan(
